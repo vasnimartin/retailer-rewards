@@ -1,8 +1,16 @@
+// public/src/ui/render.js
 import { calculatePoints } from "../lib/rewards.js";
-import { toMonthKey, monthLabel, lastNMonthKeys } from "../lib/grouping.js";
+import { toMonthKey, monthLabel } from "../lib/grouping.js"; // no need for lastNMonthKeys now
 import { state } from "../store/state.js";
 import { logEvent, LOG_EVENTS } from "../lib/logger.js";
 import { YEARS, PAGE_SIZE } from "../constants.js";
+
+// Keep the Year select disabled when "Last 3 months" is chosen
+function syncYearDisabled() {
+  const ysel = document.getElementById("yearSelect");
+  if (!ysel) return;
+  ysel.disabled = state.filter.months === "LAST_3";
+}
 
 export function initControls() {
   // Year
@@ -21,6 +29,7 @@ export function initControls() {
   msel.onchange = () => {
     state.filter.months = msel.value;
     logEvent(LOG_EVENTS.CHANGE_FILTER, { months: state.filter.months });
+    syncYearDisabled();
     render();
   };
 
@@ -31,6 +40,8 @@ export function initControls() {
     logEvent(LOG_EVENTS.SELECT_CUSTOMER, { customerId: state.selectedCustomer });
     render();
   };
+
+  syncYearDisabled();
 }
 
 export function render() {
@@ -39,26 +50,50 @@ export function render() {
   errEl.hidden = !state.ui.error;
   errEl.textContent = state.ui.error || "";
 
+  syncYearDisabled();
   renderCustomers();
   renderCustomerOptions();
   renderTransactionsAndSummary();
 }
 
 function renderTransactionsAndSummary() {
-  const tbody = document.getElementById("txnBody");
-  const noData = document.getElementById("noData");
+  const tbody   = document.getElementById("txnBody");
+  const noData  = document.getElementById("noData");
   const summary = document.getElementById("pointsSummary");
 
-  const allForCustomer = state.transactions.filter(t => t.customerId === state.selectedCustomer);
+  const allForCustomer = state.transactions.filter(
+    t => t.customerId === state.selectedCustomer
+  );
 
+  // ---------- LAST 3 MONTHS SUMMARY ----------
   if (state.filter.months === "LAST_3") {
-    // Points per month for last 3 months + grand total
-    const keys = lastNMonthKeys(3);
+    // Use the newest tx date for this customer as the "now" anchor; fall back to real now
+    const newestDate = allForCustomer.length
+      ? new Date(Math.max(...allForCustomer.map(t => new Date(t.date).getTime())))
+      : new Date();
+
+    // Build last-N month keys from a reference date (format YYYY-MM)
+    function lastNKeysFromRef(n, refDate) {
+      const keys = [];
+      let y = refDate.getFullYear();
+      let m = refDate.getMonth() + 1; // 1..12
+      for (let i = 0; i < n; i++) {
+        const mm = String(m).padStart(2, "0");
+        keys.push(`${y}-${mm}`);
+        m -= 1;
+        if (m === 0) { m = 12; y -= 1; }
+      }
+      return keys;
+    }
+
+    const keys = lastNKeysFromRef(3, newestDate);
     const bucket = new Map(keys.map(k => [k, 0]));
+    let anyTxInRange = false;
 
     for (const t of allForCustomer) {
       const { key } = toMonthKey(t.date);
       if (bucket.has(key)) {
+        anyTxInRange = true;
         bucket.set(key, bucket.get(key) + calculatePoints(t.amount));
       }
     }
@@ -68,7 +103,7 @@ function renderTransactionsAndSummary() {
       return `<tr><td>${monthLabel(k)}</td><td>${pts}</td></tr>`;
     }).join("");
 
-    const total = [...bucket.values()].reduce((a,b)=>a+b,0);
+    const total = [...bucket.values()].reduce((a, b) => a + b, 0);
 
     summary.innerHTML = `
       <h3>Last 3 Months</h3>
@@ -79,13 +114,14 @@ function renderTransactionsAndSummary() {
       <div style="margin-top:8px"><strong>Total Points:</strong> ${total}</div>
     `;
 
+    // Clear the tx table for the summary view
     tbody.innerHTML = "";
-    const any = [...bucket.values()].some(v => v > 0);
-    noData.hidden = any;
+    // Only show "No transactions" if there were zero tx in the 3-month window
+    noData.hidden = anyTxInRange;
     return;
   }
 
-  // Specific month selected -> list transactions & total
+  // ---------- SPECIFIC MONTH VIEW ----------
   const tx = allForCustomer.filter(t => monthFilter(t.date));
 
   if (!tx.length) {
@@ -100,6 +136,7 @@ function renderTransactionsAndSummary() {
     const pts = calculatePoints(t.amount);
     return `<tr><td>${t.date}</td><td>${t.transactionId}</td><td>$${t.amount.toFixed(2)}</td><td>${pts}</td></tr>`;
   }).join("");
+
   tbody.innerHTML = rows;
 
   const total = tx.reduce((a, t) => a + calculatePoints(t.amount), 0);
@@ -109,12 +146,7 @@ function renderTransactionsAndSummary() {
 function monthFilter(dateStr) {
   const { year, month } = toMonthKey(dateStr);
   if (year !== state.filter.year) return false;
-  if (state.filter.months === "LAST_3") {
-    const now = new Date();
-    const keyNow = now.getFullYear() * 12 + (now.getMonth() + 1);
-    const keyTx  = year * 12 + month;
-    return keyNow - keyTx >= 0 && keyNow - keyTx < 3;
-  }
+  // We never call this for LAST_3 path; this is for fixed month only
   return month === Number(state.filter.months);
 }
 
@@ -134,6 +166,7 @@ function renderCustomers() {
     <span>Page ${state.ui.page} / ${totalPages}</span>
     <button ${state.ui.page>=totalPages?"disabled":""} id="next">Next</button>
   `;
+
   document.getElementById("prev")?.addEventListener("click", () => {
     state.ui.page = Math.max(1, state.ui.page - 1);
     logEvent(LOG_EVENTS.PAGINATE, { page: state.ui.page });
@@ -155,15 +188,11 @@ function renderCustomerOptions() {
     return;
   }
 
-  // build options
   csel.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join("");
 
-  // pick default if none or if previous selection no longer exists
   if (!state.selectedCustomer || !list.includes(state.selectedCustomer)) {
     state.selectedCustomer = list[0];
   }
 
-  // sync UI
   csel.value = state.selectedCustomer;
 }
-
