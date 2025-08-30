@@ -2,7 +2,7 @@
 *{box-sizing:border-box}
 body{font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--txt);margin:0}
 header{padding:16px 20px;border-bottom:1px solid var(--line);background:#fff}
-h1{font-size:18px;margin:0}
+h1 { font-size: 20px; font-weight: 600; }
 section{background:var(--card);margin:16px 20px;padding:16px;border:1px solid var(--line);border-radius:12px}
 #controls label{margin-right:12px;display:inline-flex;align-items:center;gap:6px}
 select{padding:6px 10px;border:1px solid var(--line);border-radius:8px}
@@ -10,8 +10,20 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
 th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left}
 thead th{background:#fafbff;font-weight:600}
 tbody tr:nth-child(even){background:#fafbff}
+tbody tr:hover {
+  background: #f0f4ff;
+}
 #loading{padding:8px 0}
 .error{color:#b00020;font-weight:600}
 #custPager{display:flex;align-items:center;gap:10px;margin:8px 0}
-button{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+button {
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f9fafc;
+  transition: background 0.2s ease;
+}
+button:hover:not(:disabled) {
+  background: #eef3ff;
+}
 button:disabled{opacity:.5;cursor:not-allowed}

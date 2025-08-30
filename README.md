@@ -36,3 +36,14 @@ npm test
 
 # Run app locally (http://localhost:5173)
 npm run dev
+
+## Screenshots
+
+### Last 3 Months Summary
+![Last 3 Months](./screenshots/last-3-months.png)
+
+### Month View (Per-Transaction)
+![Month View](./screenshots/month-view.png)
+
+### Jest Tests Passing
+![Tests](./screenshots/tests.png)
