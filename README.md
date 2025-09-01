@@ -1,49 +1,48 @@
 # Retailer Rewards (Vanilla JS)
 
-A simple rewards program simulation built with **Vanilla JavaScript**.  
-Customers earn reward points for purchases:
-- **2 points** for every dollar spent over $100  
-- **1 point** for every dollar spent between $50 and $100  
-
-Example: $120 purchase → `2x20 + 1x50 = 90 points`.
+I built a small Vanilla JavaScript app that calculates and displays retailer reward points.  
+By default you see a **Last 3 months** summary for the selected customer; if you pick a specific month, you’ll see all transactions for that month with points per transaction.
 
 ---
 
-## Features
-✅ Vanilla JavaScript (no frameworks)  
-✅ Mock JSON dataset (`transactions.json`) with **16 customers, 200+ transactions**  
-✅ Asynchronous API simulation with delay + error handling  
-✅ Logging of API calls, filters, and pagination actions  
-✅ Customer pagination  
-✅ Year & Month filters (2021–2025 + “Last 3 months”)  
-✅ Per-transaction and per-month reward points  
-✅ “No transactions” fallback view  
-✅ 6 Jest unit tests (positive & negative cases, fractional values, null safety)  
+## Why I implemented it this way
+
+- **Simple, framework-free:** Everything is ES modules and plain DOM. Logic is in small, testable files; UI is a thin render layer.
+- **Realistic “last 3 months”:** I anchor the 3-month window to the **newest transaction for that customer** (so historical customers still demo correctly). Year is disabled in this mode to avoid confusion.
+- **Clear separation:**  
+  - `lib/` → pure logic (points, date grouping, logger)  
+  - `ui/` → rendering & controls  
+  - `store/state.js` → tiny state container  
+  - `constants.js` → all constants in one place
+- **UX details:** “No transactions” message for empty months, loading and error states for the mock API, and basic pagination for the customer list.
 
 ---
 
-## Setup
+## Features (quick list)
+
+- Vanilla JS (no TS/React/Angular)
+- Local JSON dataset with **16 customers, 200+ transactions**
+- Simulated async API with delay + failure rate
+- Logging to console and `localStorage` (`rr_logs`)
+- Customer pagination
+- Filters: **Year (2021–2025)** and **Month (Jan–Dec)**, plus **Last 3 months** default
+- Per-month totals + overall total; per-transaction points in month view
+- **9 Jest tests** (positive & negative, whole + fractional values, empty month, last-3 anchoring)
+- JSDoc on core logic
+
+---
+
+## How to run it
 
 ```bash
-# Install dependencies
+# Install deps
 npm install
 
-# Generate mock dataset (16 customers, ~200+ transactions)
+# Generate mock dataset (writes to public/data/transactions.json)
 npm run gen:data
 
-# Run unit tests (6 total, all passing)
+# Run tests
 npm test
 
-# Run app locally (http://localhost:5173)
+# Start local server (http://localhost:5173)
 npm run dev
-
-## Screenshots
-
-### Last 3 Months Summary
-![Last 3 Months](./screenshots/last-3-months.png)
-
-### Month View (Per-Transaction)
-![Month View](./screenshots/month-view.png)
-
-### Jest Tests Passing
-![Tests](./screenshots/tests.png)
