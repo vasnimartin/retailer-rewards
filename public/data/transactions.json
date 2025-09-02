@@ -4,6 +4,7 @@
   { "customerId": "C001", "transactionId": "T0010003", "amount": 48.77, "date": "2022-09-22" },
   { "customerId": "C001", "transactionId": "T0010004", "amount": 49.77, "date": "2023-11-21" },
   { "customerId": "C001", "transactionId": "T0010005", "amount": 157.82, "date": "2022-02-18" },
+  { "customerId": "C001", "transactionId": "T0010005", "amount": 157.82, "date": "2024-09-18" },
   { "customerId": "C001", "transactionId": "T0010006", "amount": 159.41, "date": "2022-06-18" },
   { "customerId": "C001", "transactionId": "T0010007", "amount": 142.28, "date": "2023-08-17" },
   { "customerId": "C001", "transactionId": "T0010008", "amount": 103.8, "date": "2025-06-14" },
