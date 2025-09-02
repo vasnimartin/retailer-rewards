@@ -1,4 +1,3 @@
-// src/ui/render.js
 import { calculatePoints } from "../lib/rewards.js";
 import { toMonthKey, monthLabel } from "../lib/grouping.js";
 import { YEARS, PAGE_SIZE } from "../constants.js";
@@ -65,75 +64,195 @@ function renderTransactionsAndSummary() {
     t => t.customerId === state.selectedCustomer
   );
 
+  // // ---------- LAST 3 MONTHS SUMMARY ----------
+  // if (state.filter.months === "LAST_3") {
+  //   const y = state.filter.year;
+
+  //   // Find latest month (0..11) in this year that has any tx for this customer
+  //   const inYearDates = allForCustomer
+  //     .map(t => new Date(t.date))
+  //     .filter(d => d.getFullYear() === y);
+
+  //   if (inYearDates.length === 0) {
+  //     // No activity at all in the selected year
+  //     const html = `
+  //       <h3>Last 3 Months</h3>
+  //       <table>
+  //         <thead><tr><th>Month</th><th>Points</th></tr></thead>
+  //         <tbody></tbody>
+  //       </table>
+  //       <div style="margin-top:8px"><strong>Total Points:</strong> 0</div>
+  //     `;
+  //     summary.innerHTML = html;
+  //     tbody.innerHTML = "";
+  //     noData.hidden = false; // "No transactions"
+  //     return;
+  //   }
+
+  //   const anchorMonth = Math.max(...inYearDates.map(d => d.getMonth())); // 0..11
+
+  //   // Build up to 3 months ending at anchor, staying within the same year
+  //   const months = [];
+  //   for (let m = Math.max(0, anchorMonth - 2); m <= anchorMonth; m++) {
+  //     months.push(`${y}-${String(m + 1).padStart(2, "0")}`); // "YYYY-MM"
+  //   }
+
+  //   const bucket = new Map(months.map(k => [k, 0]));
+  //   const monthSet = new Set(months);
+  //   let txCountInRange = 0;
+
+  //   // Aggregate points for txns in those months
+  //   for (const t of allForCustomer) {
+  //     const { key, year } = toMonthKey(t.date);
+  //     if (year === y && monthSet.has(key)) {
+  //       txCountInRange++;
+  //       bucket.set(key, bucket.get(key) + calculatePoints(t.amount));
+  //     }
+  //   }
+
+  //   const rowsHtml = months
+  //     .map(k => `<tr><td>${monthLabel(k)}</td><td>${bucket.get(k) || 0}</td></tr>`)
+  //     .join("");
+
+  //   const total = [...bucket.values()].reduce((a, b) => a + b, 0);
+  //   const endingLabel = monthLabel(months[months.length - 1]);
+
+  //   const html = `
+  //     <h3>Last 3 Months (ending ${endingLabel})</h3>
+  //     <table>
+  //       <thead><tr><th>Month</th><th>Points</th></tr></thead>
+  //       <tbody>${rowsHtml}</tbody>
+  //     </table>
+  //     <div style="margin-top:8px"><strong>Total Points:</strong> ${total}</div>
+  //   `;
+  //   summary.innerHTML = html;
+
+  //   // Clear the tx table for the summary view
+  //   tbody.innerHTML = "";
+  //   // Show "No transactions" only when there are zero transactions in the window
+  //   noData.hidden = txCountInRange > 0;
+  //   return;
+  // }
+
   // ---------- LAST 3 MONTHS SUMMARY ----------
-  if (state.filter.months === "LAST_3") {
-    const y = state.filter.year;
+if (state.filter.months === "LAST_3") {
+  const y = state.filter.year;
 
-    // Find latest month (0..11) in this year that has any tx for this customer
-    const inYearDates = allForCustomer
-      .map(t => new Date(t.date))
-      .filter(d => d.getFullYear() === y);
+  // Find latest month (0..11) in this year that has any tx for this customer
+  const inYearDates = allForCustomer
+    .map(t => new Date(t.date))
+    .filter(d => d.getFullYear() === y);
 
-    if (inYearDates.length === 0) {
-      // No activity at all in the selected year
-      const html = `
-        <h3>Last 3 Months</h3>
-        <table>
-          <thead><tr><th>Month</th><th>Points</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <div style="margin-top:8px"><strong>Total Points:</strong> 0</div>
-      `;
-      summary.innerHTML = html;
-      tbody.innerHTML = "";
-      noData.hidden = false; // "No transactions"
-      return;
-    }
-
-    const anchorMonth = Math.max(...inYearDates.map(d => d.getMonth())); // 0..11
-
-    // Build up to 3 months ending at anchor, staying within the same year
-    const months = [];
-    for (let m = Math.max(0, anchorMonth - 2); m <= anchorMonth; m++) {
-      months.push(`${y}-${String(m + 1).padStart(2, "0")}`); // "YYYY-MM"
-    }
-
-    const bucket = new Map(months.map(k => [k, 0]));
-    const monthSet = new Set(months);
-    let txCountInRange = 0;
-
-    // Aggregate points for txns in those months
-    for (const t of allForCustomer) {
-      const { key, year } = toMonthKey(t.date);
-      if (year === y && monthSet.has(key)) {
-        txCountInRange++;
-        bucket.set(key, bucket.get(key) + calculatePoints(t.amount));
-      }
-    }
-
-    const rowsHtml = months
-      .map(k => `<tr><td>${monthLabel(k)}</td><td>${bucket.get(k) || 0}</td></tr>`)
-      .join("");
-
-    const total = [...bucket.values()].reduce((a, b) => a + b, 0);
-    const endingLabel = monthLabel(months[months.length - 1]);
-
+  if (inYearDates.length === 0) {
+    // No activity at all in the selected year
     const html = `
-      <h3>Last 3 Months (ending ${endingLabel})</h3>
+      <h3>Last 3 Months</h3>
       <table>
         <thead><tr><th>Month</th><th>Points</th></tr></thead>
-        <tbody>${rowsHtml}</tbody>
+        <tbody></tbody>
       </table>
-      <div style="margin-top:8px"><strong>Total Points:</strong> ${total}</div>
+      <div style="margin-top:8px"><strong>Total Points:</strong> 0</div>
     `;
     summary.innerHTML = html;
-
-    // Clear the tx table for the summary view
     tbody.innerHTML = "";
-    // Show "No transactions" only when there are zero transactions in the window
-    noData.hidden = txCountInRange > 0;
+    noData.hidden = false; // "No transactions"
     return;
   }
+
+  const anchorMonth = Math.max(...inYearDates.map(d => d.getMonth())); // 0..11
+
+  // Build up to 3 months ending at anchor, staying within the same year
+  const months = [];
+  for (let m = Math.max(0, anchorMonth - 2); m <= anchorMonth; m++) {
+    months.push(`${y}-${String(m + 1).padStart(2, "0")}`); // "YYYY-MM"
+  }
+
+  const bucket = new Map(months.map(k => [k, 0]));
+  const monthSet = new Set(months);
+
+  // Aggregate points for those months
+  for (const t of allForCustomer) {
+    const { key, year } = toMonthKey(t.date);
+    if (year === y && monthSet.has(key)) {
+      bucket.set(key, bucket.get(key) + calculatePoints(t.amount));
+    }
+  }
+
+  const rowsHtml = months
+    .map(k => `<tr><td>${monthLabel(k)}</td><td>${bucket.get(k) || 0}</td></tr>`)
+    .join("");
+
+  const total = [...bucket.values()].reduce((a, b) => a + b, 0);
+  const endingLabel = monthLabel(months[months.length - 1]);
+
+  // Render the 3-month summary
+  const html = `
+    <h3>Last 3 Months (ending ${endingLabel})</h3>
+    <table>
+      <thead><tr><th>Month</th><th>Points</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    <div style="margin-top:8px"><strong>Total Points:</strong> ${total}</div>
+  `;
+  summary.innerHTML = html;
+
+  // Render transactions grouped by each of the 3 months (show header and placeholder for empty months)
+  const txInWindow = allForCustomer.filter(t => {
+    const { key, year } = toMonthKey(t.date);
+    return year === y && monthSet.has(key);
+  });
+
+  // Prepare buckets for each month (even if empty)
+  const byMonth = new Map(months.map(k => [k, []]));
+  for (const t of txInWindow) {
+    const { key } = toMonthKey(t.date);
+    byMonth.get(key).push(t);
+  }
+
+  let bodyHtml = "";
+  for (const k of months) {
+    // Month header row
+    bodyHtml += `
+      <tr>
+        <td colspan="4" style="font-weight:600;background:#f8fafc">${monthLabel(k)}</td>
+      </tr>
+    `;
+
+    const list = byMonth.get(k);
+    if (!list || list.length === 0) {
+      bodyHtml += `
+        <tr>
+          <td colspan="4" style="color:#64748b">No transactions</td>
+        </tr>
+      `;
+      continue;
+    }
+
+    bodyHtml += list.map(t => {
+      const pts = calculatePoints(t.amount);
+      return `
+        <tr>
+          <td>${t.date}</td>
+          <td>${t.transactionId}</td>
+          <td>$${Number(t.amount).toFixed(2)}</td>
+          <td>${pts}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  // If absolutely nothing in the 3-month window (edge case), show "No transactions"
+  if (txInWindow.length === 0) {
+    noData.hidden = false;
+    tbody.innerHTML = "";
+  } else {
+    noData.hidden = true;
+    tbody.innerHTML = bodyHtml;
+  }
+  return;
+}
+
+
 
   // ---------- SPECIFIC MONTH VIEW ----------
   const tx = allForCustomer.filter(t => monthFilter(t.date));

@@ -1,4 +1,3 @@
-// public/src/lib/grouping.js
 /** Parse a date string and return { year, month, key: "YYYY-MM" } */
 export function toMonthKey(dateStr) {
   const d = new Date(dateStr);

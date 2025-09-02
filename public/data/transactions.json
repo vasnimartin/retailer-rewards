@@ -75,7 +75,19 @@
     "customerId": "C001",
     "transactionId": "T0010013",
     "amount": 114.87,
-    "date": "2021-01-28"
+    "date": "2021-09-28"
+  },
+    {
+    "customerId": "C001",
+    "transactionId": "T0010013",
+    "amount": 114.87,
+    "date": "2021-08-28"
+  },
+    {
+    "customerId": "C001",
+    "transactionId": "T0010013",
+    "amount": 114.87,
+    "date": "2021-09-28"
   },
   {
     "customerId": "C001",
