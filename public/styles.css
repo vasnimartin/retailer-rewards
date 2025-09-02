@@ -27,3 +27,14 @@ button:hover:not(:disabled) {
   background: #eef3ff;
 }
 button:disabled{opacity:.5;cursor:not-allowed}
+#noData {
+  color: #b00020;          /* red to stand out */
+  font-weight: bold;
+  text-align: center;
+  padding: 12px;
+  background: #ffe6e6;     /* light red background */
+  border: 1px solid #ffb3b3;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+

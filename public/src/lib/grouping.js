@@ -28,3 +28,50 @@ export function lastNMonthKeys(n) {
   }
   return list;
 }
+
+// Build 3 months based on the most recent transaction across all years
+export function getLastNMonthsGlobal(transactions, n = 3) {
+  if (!transactions?.length) return [];
+  const maxTime = Math.max(...transactions.map(t => new Date(t.date).getTime()));
+  const anchor = new Date(maxTime);
+  const start = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const d = new Date(start.getFullYear(), start.getMonth() - i, 1);
+    out.push({ year: d.getFullYear(), month: d.getMonth() }); // month 0..11
+  }
+  return out.reverse();
+}
+
+// Build up to 3 months strictly within a given year (does NOT cross the year)
+export function getLastNMonthsInYear(transactions, year, n = 3) {
+  const inYear = (transactions || []).filter(t => new Date(t.date).getFullYear() === year);
+
+  const anchorMonth = inYear.length
+    ? Math.max(...inYear.map(t => new Date(t.date).getMonth()))
+    : 11; // Dec (0-based)
+
+  const months = [];
+  for (let i = 0; i < n; i++) {
+    const m = anchorMonth - i;
+    if (m < 0) break;            // stay within the year
+    months.push({ year, month: m });
+  }
+  return months.reverse();
+}
+
+// Utility to get all transactions + points for a specific {year, month}
+// Uses your existing reward calc function if you pass it in.
+export function summarizeMonth(transactions, year, month, calcPointsFn) {
+  const monthTx = (transactions || []).filter(t => {
+    const d = new Date(t.date);
+    return d.getFullYear() === year && d.getMonth() === month;
+  });
+  const rows = monthTx.map(t => ({
+    ...t,
+    points: calcPointsFn ? calcPointsFn(t.amount) : 0,
+  }));
+  const total = rows.reduce((s, r) => s + r.points, 0);
+  return { rows, total };
+}
