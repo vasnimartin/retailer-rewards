@@ -74,5 +74,10 @@
   { "customerId": "C014", "transactionId": "T0140003", "amount": 200, "date": "2022-01-10" },
 
   { "customerId": "C015", "transactionId": "T0150001", "amount": 66, "date": "2025-04-02" },
-  { "customerId": "C015", "transactionId": "T0150002", "amount": 180, "date": "2025-06-22" }
+  { "customerId": "C015", "transactionId": "T0150002", "amount": 180, "date": "2025-06-22" },
+
+  { "customerId": "C016", "transactionId": "T0150001", "amount": 66, "date": "2025-01-02" },
+  { "customerId": "C016", "transactionId": "T0150002", "amount": 180, "date": "2025-01-22" },
+  { "customerId": "C016", "transactionId": "T0150001", "amount": 66, "date": "2025-02-02" },
+  { "customerId": "C016", "transactionId": "T0150002", "amount": 180, "date": "2025-03-22" }
 ]
